@@ -1,7 +1,18 @@
 import express from "express";
-import fs from "fs";
+
+import {
+  createProdcuts,
+  deleteProduct,
+  getProduct,
+  getProducts,
+  updateProduct,
+} from "./controller/product.js";
 
 const server = express();
+const productRouter = express.Router();
+
+server.use(express.json());
+server.use("/api", productRouter);
 
 const auth = (req, res, next) => {
   if (req.query.password === "1234") {
@@ -11,8 +22,6 @@ const auth = (req, res, next) => {
   }
 };
 
-server.use(express.json());
-
 server.get("/", auth, (req, res) => {
   res.send("Hello World");
 });
@@ -21,41 +30,21 @@ server.post("/", (req, res) => {
   res.send("Hello World from post");
 });
 
-const products = JSON.parse(fs.readFileSync("data.json", "utf-8"));
-
 // Create POST /products
 
-server.post("/products", (req, res) => {
-  products.push(req.body);
-  res.json(req.body);
-});
+productRouter.post("/products", createProdcuts);
 
 // Read GET
-server.get("/products", (req, res) => {
-  res.json(products);
-});
+productRouter.get("/products", getProducts);
 
-server.get("/products/:id", (req, res) => {
-  const id = +req.params.id;
-  const product = products.find((p) => p.id === id);
-  res.json(product);
-});
-server.listen(8000);
+productRouter.get("/products/:id", getProduct);
 
 // Update PUT /products/:id
 
-server.put("/products/:id", (req, res) => {
-  const id = +req.params.id;
-  const product = products.findIndex((p) => p.id === id);
-  products[product] = { id: id, ...req.body };
-  res.status(201).json();
-});
+productRouter.put("/products/:id", updateProduct);
 
 // Delete DELETE /products/:id
 
-server.delete("/products/:id", (req, res) => {
-  const id = +req.params.id;
-  const product = products.findIndex((p) => p.id === id);
-  products.splice(product, 1);
-  res.status(202).json();
-});
+productRouter.delete("/products/:id", deleteProduct);
+
+server.listen(8000);
