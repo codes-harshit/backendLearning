@@ -1,4 +1,5 @@
 **/node_modules/
 Mongo/node_modules/
 .env
+Datamodelling/node_modules
 
